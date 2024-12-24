@@ -24,8 +24,13 @@ const taskSchema = new mongoose.Schema({
         type: String,
         enum: ['Low', 'Medium', 'High'],
         required: true
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Register',
+        required: true
     }
-}, {timestamps: true});
+}, { timestamps: true });
 
 const Task = mongoose.model('Task', taskSchema);
 

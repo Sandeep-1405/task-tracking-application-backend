@@ -69,7 +69,7 @@ const authentication = async (req, res, next) => {
 
     try{
         const payload = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        console.log(payload.userId);
+        //console.log(payload.userId);
         req.userId = payload.userId;
         next();
 
@@ -84,7 +84,7 @@ const getAllTasks = async (req,res) => {
     const userId = req.userId;
 
     try{
-        const taskList = await Task.find({_id:userId});
+        const taskList = await Task.find({userId});
         console.log(taskList);
         res.status(200).json({taskList})
     }catch(error){
@@ -93,20 +93,59 @@ const getAllTasks = async (req,res) => {
     }
 }
 
-const createTask = async (req,res) => {
-    const userId = req.userId;
-    try{
-        await Task(req.body,{userId})
+const createTask = async (req, res) => {
+    const userId = req.userId; 
+    const data = { ...req.body, userId };
 
+    try {
+        
+        const task = new Task(data);
+        await task.save();
+
+        res.status(201).json({ message: 'Task Added' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getTaskById = async(req,res) => {
+    const {id} = req.params;
+
+    try{
+        const task = await Task.findById({_id:id});
+        res.status(200).json({task});
     }catch(error){
         console.log(error);
-        res.status(500).json({error:error.message});
+        res.status(500).json({error});
     }
 }
+
+const updateTask = async (req, res) => {
+    const { id } = req.params;
+    const { name, description, dueDate, status, priority } = req.body;
+
+    try {
+        const updatedTask = await Task.findByIdAndUpdate(
+            id,
+            { name, description, dueDate, status, priority },
+            { new: true }
+        );
+
+        res.status(200).json(updatedTask);
+    } catch (error) {
+        console.error("Error updating task:", error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
 
 module.exports = {
     createUser,
     userLogin,
     authentication,
-    getAllTasks
+    getAllTasks,
+    createTask,
+    getTaskById,
+    updateTask
 }
