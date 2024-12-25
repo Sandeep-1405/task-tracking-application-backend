@@ -85,7 +85,7 @@ const getAllTasks = async (req,res) => {
 
     try{
         const taskList = await Task.find({userId});
-        console.log(taskList);
+        //console.log(taskList);
         res.status(200).json({taskList})
     }catch(error){
         console.log(error);
@@ -134,10 +134,55 @@ const updateTask = async (req, res) => {
 
         res.status(200).json(updatedTask);
     } catch (error) {
-        console.error("Error updating task:", error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        console.error(error);
+        res.status(500).json({ error });
     }
 };
+
+const deleteTask = async (req,res)=>{
+    const {id} = req.params;
+    try{
+        await Task.findByIdAndDelete(id);
+        res.status(200).json({message:"Task Deleted"});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+const getTaskByCategory = async (req,res) => {
+    const {value} = req.params;
+    const userId = req.userId
+    try{
+        const task = await Task.find({userId,status:value});
+        res.status(200).json(task);
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ error });
+    }
+}
+
+const getTaskBySearchValue = async (req, res) => {
+    const { value } = req.params; 
+    const userId = req.userId;
+
+    try {
+        const tasks = await Task.find({
+            userId,
+            $or: [
+                { name: { $regex: value, $options: 'i' } },
+                { description: { $regex: value, $options: 'i' } }
+            ]
+        });
+
+        res.status(200).json(tasks);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error});
+    }
+};
+
+module.exports = getTaskBySearchValue;
 
 
 module.exports = {
@@ -147,5 +192,8 @@ module.exports = {
     getAllTasks,
     createTask,
     getTaskById,
-    updateTask
+    updateTask,
+    deleteTask,
+    getTaskByCategory,
+    getTaskBySearchValue
 }

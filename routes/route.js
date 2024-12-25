@@ -7,7 +7,10 @@ const {
     getAllTasks,
     createTask,
     getTaskById,
-    updateTask
+    updateTask,
+    deleteTask,
+    getTaskByCategory,
+    getTaskBySearchValue
 
 } = require('../controllers/controllers');
 
@@ -23,5 +26,11 @@ router.post('/tasks', authentication, createTask);
 router.get('/tasks/:id', authentication, getTaskById );
 
 router.put('/tasks/:id', authentication, updateTask );
+
+router.delete('/tasks/:id',authentication,deleteTask);
+
+router.get('/category/:value',authentication,getTaskByCategory);
+
+router.get('/search/:value',authentication,getTaskBySearchValue);
 
 module.exports = router
